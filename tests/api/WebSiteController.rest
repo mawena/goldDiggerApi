@@ -1,0 +1,13 @@
+GET http://localhost:7500/api/website
+###YES
+
+POST http://localhost:7500/api/website
+Content-Type: application/json
+
+{
+    "token" : "2q5s4d5fqsdfqsd254fq5sd4f5qsdf",
+    "name" : "Otacku Attack",
+    "slug" : "otacku_attack",
+    "indexPageLink" : "http://localhost:82"
+}
+###
