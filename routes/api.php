@@ -26,9 +26,9 @@ Route::get('/article', [ArticleController::class, 'index']);
 Route::get('/article/website/{webSiteToken}', [ArticleController::class, 'getByWebSite']);
 Route::get('/article/category/{categoyToken}', [ArticleController::class, 'getByCategory']);
 Route::get('/article/{token}', [ArticleController::class, 'show']);
-Route::post('/article', [ArticleController::class, 'store']);
+// Route::post('/article', [ArticleController::class, 'store']);
 Route::match(['put', 'patch'], 'article/{token}', [ArticleController::class, 'update']);
-Route::delete('/article/{token}', [Categorycontroller::class, 'destroy']);
+Route::delete('/article/{token}', [Articlecontroller::class, 'destroy']);
 
 Route::get('/category', [CategoryController::class, 'index']);
 Route::get('/category/{token}', [CategoryController::class, 'show']);

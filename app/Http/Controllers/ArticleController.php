@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -17,7 +18,7 @@ class ArticleController extends Controller
      */
     public function getByWebSite(String $webSiteToken)
     {
-        $validator = Validator::make(["identifiant du site web" => $webSiteToken], ["identifiant du site web" => "required|exists:Articles,webSiteToken"]);
+        $validator = Validator::make(["identifiant du site web" => $webSiteToken], ["identifiant du site web" => "exists:Articles,webSiteToken"]);
         if ($validator->fails()) {
             return response()->json(
                 [
@@ -56,7 +57,7 @@ class ArticleController extends Controller
      */
     public function getByCategory(String $categoryToken)
     {
-        $validator = Validator::make(["identifiant de la catégorie" => $categoryToken], ["identifiant de la catégorie" => "required|exists:Articles,categorieToken"]);
+        $validator = Validator::make(["identifiant de la catégorie" => $categoryToken], ["identifiant de la catégorie" => "exists:Articles,categorieToken"]);
         if ($validator->fails()) {
             return response()->json(
                 [
@@ -137,7 +138,28 @@ class ArticleController extends Controller
      */
     public function show(String $token)
     {
-        //
+        $validator = Validator::make(["identifiant de l'article" => $token], ["identifiant de l'article" => "exists:Articles,token"]);
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    "status" => 0,
+                    "errors" => $validator->errors()->toArray()
+                ],
+                404,
+                [],
+                JSON_UNESCAPED_UNICODE
+            );
+        } else {
+            return response()->json(
+                [
+                    "status" => 1,
+                    "article" => Article::find($token)
+                ],
+                200,
+                [],
+                JSON_UNESCAPED_UNICODE
+            );
+        }
     }
 
     /**
@@ -149,7 +171,57 @@ class ArticleController extends Controller
      */
     public function update(Request $request, String $token)
     {
-        //
+        $article = Article::find($token);
+        if ($article) {
+            $requestData = $request->all();
+            $validator = Validator::make($requestData, ["token" => "unique:Articles|min:10", "title" => "min:2|unique:Articles", "pageLink" => "url|unique:Articles", "imageLink" => "url", "contentBase" => "min:10", "date" => "date", "categorieToken" => "exists:Categories,token", "webSiteToken" => "exists:WebSites,token"]);
+            if ($validator->fails()) {
+                return response()->json(
+                    [
+                        "status" => 0,
+                        "errors" => $validator->errors()->toArray()
+                    ],
+                    406,
+                    [],
+                    JSON_UNESCAPED_UNICODE
+                );
+            } else {
+                if ($article->update($requestData)) {
+                    foreach ($requestData as $key => $value) {
+                        $article[$key] = $value;
+                    }
+                    return response()->json(
+                        [
+                            "status" => 1,
+                            "article" => $article
+                        ],
+                        200,
+                        [],
+                        JSON_UNESCAPED_UNICODE
+                    );
+                } else {
+                    return response()->json(
+                        [
+                            "status" => 0,
+                            "errors" => ["db" => "Erreur durant la mise à jour."]
+                        ],
+                        406,
+                        [],
+                        JSON_UNESCAPED_UNICODE
+                    );
+                }
+            }
+        } else {
+            return response()->json(
+                [
+                    "status" => 0,
+                    "errors" => ["db" => "L'article sélectionné n'existe pas."]
+                ],
+                404,
+                [],
+                JSON_UNESCAPED_UNICODE
+            );
+        }
     }
 
     /**
@@ -160,6 +232,27 @@ class ArticleController extends Controller
      */
     public function destroy(String $token)
     {
-        //
+        $validator = Validator::make(["identifiant de l'article" => $token], ["identifiant de l'article" => "exists:Articles,token"]);
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    "status" => 0,
+                    "errors" => $validator->errors()->toArray()
+                ],
+                404,
+                [],
+                JSON_UNESCAPED_UNICODE
+            );
+        } else {
+            Article::destroy($token);
+            return response()->json(
+                [
+                    "status" => 1,
+                ],
+                200,
+                [],
+                JSON_UNESCAPED_UNICODE
+            );
+        }
     }
 }
