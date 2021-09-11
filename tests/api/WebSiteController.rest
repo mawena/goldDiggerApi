@@ -1,13 +1,27 @@
 GET http://localhost:7500/api/website
 ###YES
 
+GET http://localhost:7500/api/website/0d5dd2bb6e019f77b6a121e03f9fe32adc70d2a6
+###
+
+DELETE http://localhost:7500/api/website/f5adaf0a0b302d0e87bc4594a2d17d75f2fbf854
+###
+
 POST http://localhost:7500/api/website
 Content-Type: application/json
 
 {
-    "token" : "2q5s4d5fqsdfqsd254fq5sd4f5qsdf",
-    "name" : "Otacku Attack",
-    "slug" : "otacku_attack",
+    "name" : "Otacku Attack 4",
     "indexPageLink" : "http://localhost:82"
+}
+###
+
+PUT http://localhost:7500/api/website/noirnoirnoir
+Content-Type: application/json
+
+{
+    "token" : "d82c9e0ce14138114ad9f5900bc5424c5f2f864c",
+    "name" : "goldDigger api",
+    "indexPageLink" : "http://localhost:7500"
 }
 ###

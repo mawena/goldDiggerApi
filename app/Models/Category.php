@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class WebSite extends Model
+class Category extends Model
 {
-    protected $table = "WebSites";
+    protected $table = "Categories";
     protected $primaryKey = "token";
     protected $keyType = 'string';
-    protected $fillable = ["token", "name", "slug", "indexPageLink"];
+    protected $fillable = ["token", "name"];
     public $timestamps = false;
     use HasFactory;
 }

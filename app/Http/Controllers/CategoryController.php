@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\WebSite;
+use App\Models\Category;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
-class WebSiteController extends Controller
+class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,14 +15,12 @@ class WebSiteController extends Controller
      */
     public function index()
     {
-        $dataDB = WebSite::all();
+        $dataDB = Category::all();
         if ($dataDB == []) {
             return response()->json(
                 [
-                    "status" => 0,
-                    "errors" => [
-                        "db" => "Aucun site web."
-                    ]
+                    'status' => 0,
+                    "errors" => ["Aucune categorie."]
                 ],
                 404,
                 [],
@@ -32,7 +30,7 @@ class WebSiteController extends Controller
             return response()->json(
                 [
                     "status" => 1,
-                    "websites" => $dataDB
+                    "catogories" => $dataDB
                 ],
                 200,
                 [],
@@ -50,31 +48,29 @@ class WebSiteController extends Controller
     public function store(Request $request)
     {
         $requestData = $request->all();
-        $validator = Validator::make($requestData, ["name" => "required|min:2|unique:WebSites", "indexPageLink" => "required|url|unique:WebSites"]);
+        $validator = Validator::make($requestData, [
+            'name' => 'required|unique:Categories|min:2',
+        ]);
+
         if ($validator->fails()) {
             return response()->json(
                 [
-                    "status" => 0,
-                    "errors" => $validator->errors()->toArray()
+                    'status' => 0,
+                    'errors' => $validator->errors()->toArray()
                 ],
-                406,
+                400,
                 [],
                 JSON_UNESCAPED_UNICODE
             );
         } else {
             $requestData["token"] = sha1(date("d M Y H i s") . $requestData["name"]);
-
-            // Création du slug
-            $requestData["slug"] = slugger($requestData["name"], [" ", "-", ".", "/", "\\"]);
-            if (WebSite::create($requestData)) {
+            if (category::create($requestData)) {
                 return response()->json(
                     [
                         "status" => 1,
-                        "website" => [
+                        "category" => [
                             "token" => $requestData["token"],
-                            "name" => $requestData["name"],
-                            "slug" => $requestData["slug"],
-                            "indexPageLink" => $requestData["indexPageLink"]
+                            "name" => $requestData["name"]
                         ]
                     ],
                     200,
@@ -85,7 +81,7 @@ class WebSiteController extends Controller
                 return response()->json(
                     [
                         "status" => 0,
-                        "errors" => ["db" => "Erreur durant l'ajout du site web."]
+                        "errors" => ["db" => "Erreur durant l'ajout de la catégorie."]
                     ],
                     500,
                     [],
@@ -98,29 +94,29 @@ class WebSiteController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  String $token
+     * @param  String  $token
      * @return \Illuminate\Http\Response
      */
     public function show(String $token)
     {
-        $dataDB = WebSite::find($token);
-        if ($dataDB == []) {
+        $dataDB = Category::find($token);
+        if ($dataDB) {
             return response()->json(
                 [
-                    "status" => 0,
-                    "errors" => ["db" => "Le site web sélectionné n'existe pas."]
+                    "status" => 1,
+                    "catogory" => $dataDB
                 ],
-                404,
+                200,
                 [],
                 JSON_UNESCAPED_UNICODE
             );
         } else {
             return response()->json(
                 [
-                    "status" => 1,
-                    "website" => $dataDB
+                    'status' => 0,
+                    "errors" => ["db" => "La catégorie sélectionné n'existe pas."]
                 ],
-                200,
+                404,
                 [],
                 JSON_UNESCAPED_UNICODE
             );
@@ -136,57 +132,49 @@ class WebSiteController extends Controller
      */
     public function update(Request $request, String $token)
     {
+
+        $categoryData = Category::find($token);
         $requestData = $request->all();
-        $validator = Validator::make($requestData, ["token" => "unique:WebSites", "name" => "min:2|unique:WebSites", "indexPageLink" => "url|unique:WebSites"]);
-        if ($validator->fails()) {
-            return response()->json(
-                [
-                    "status" => 0,
-                    "errors" => $validator->errors()->toArray()
-                ],
-                406,
-                [],
-                JSON_UNESCAPED_UNICODE
-            );
-        } else {
-            $website = WebSite::find($token);
-            if ($website) {
-                if ($website->update($requestData)) {
-                    $requestData["slug"] = slugger($requestData["name"]);
-                    foreach($requestData as $key => $value){
-                        $website[$key] = $value;
-                    }
-                    return response()->json(
-                        [
-                            "status" => 1,
-                            "website" => $website
-                        ],
-                        200,
-                        [],
-                        JSON_UNESCAPED_UNICODE
-                    );
+        if ($categoryData) {
+            $validator = Validator::make($requestData["name"], ["name" => "required|unique:Categories|min:2"]);
+            if ($validator->fails()) {
+                return response()->json(
+                    [
+                        'status' => 0,
+                        "errors" => $validator->errors()->toArray()
+                    ],
+                    409,
+                    [],
+                    JSON_UNESCAPED_UNICODE
+                );
+            } else {
+                $categoryData["name"] = $requestData["name"];
+                if ($categoryData->update()) {
+                    return [
+                        "status" => 1
+                    ];
                 } else {
                     return response()->json(
                         [
-                            "status" => 0,
-                            "errors" => ["db" => "Erreur durant la mise à jour."]
+                            'status' => 0,
+                            "errors" => ["db" => "Erreur durant la mise à jour de la catégorie."]
                         ],
                         500,
                         [],
                         JSON_UNESCAPED_UNICODE
                     );
                 }
-            } else {
-                return response()->json(
-                    [
-                        "status" => 0,
-                        "errors" => ["db" => "Le site web sélectionné n'existe pas."]
-                    ],
-                    404,
-                    [],
-                    JSON_UNESCAPED_UNICODE
-                );
             }
+        } else {
+            return response()->json(
+                [
+                    'status' => 0,
+                    "errors" => ["db" => "La catégorie sélectionné n'existe pas."]
+                ],
+                404,
+                [],
+                JSON_UNESCAPED_UNICODE
+            );
         }
     }
 
@@ -198,20 +186,20 @@ class WebSiteController extends Controller
      */
     public function destroy(String $token)
     {
-        if (Validator::make(["token" => $token], ["token" => "exists:WebSites"])->fails()) {
+        if ((Validator::make(["token" => $token], ["token" => "exists:Categories"]))->fails()) {
             return response()->json(
                 [
                     "status" => 0,
-                    "errors" => ["db" => "Le site web sélectionné n'existe pas."]
+                    "errors" => ["db" => "La catégorie sélectionné n'existe pas."]
                 ],
                 404,
                 [],
                 JSON_UNESCAPED_UNICODE
             );
         } else {
-            WebSite::destroy($token);
+            Category::destroy($token);
             return [
-                "status" => 1,
+                "status" => 1
             ];
         }
     }

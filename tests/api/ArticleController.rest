@@ -1,2 +1,8 @@
 GET http://localhost:7500/api/article
 ###
+
+GET http://localhost:7500/api/article/website/5a0cb0da43df22dafd240c7dc177771595726858
+###
+
+GET http://localhost:7500/api/article/category/eb40898470f9fc303bb1f5f27ef351084a6f272
+###

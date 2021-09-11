@@ -4,9 +4,89 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ArticleController extends Controller
 {
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @param  String $websiteToken
+     * @return \Illuminate\Http\Response
+     */
+    public function getByWebSite(String $webSiteToken)
+    {
+        $validator = Validator::make(["identifiant du site web" => $webSiteToken], ["identifiant du site web" => "required|exists:Articles,webSiteToken"]);
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    "status" => 0,
+                    "errors" => $validator->errors()->toArray()
+                ],
+                406,
+                [],
+                JSON_UNESCAPED_UNICODE
+            );
+        } else {
+            $dataDB = Article::all();
+            $articleArray = [];
+            foreach ($dataDB as $article) {
+                if ($article["webSiteToken"] == $webSiteToken) {
+                    $articleArray[] = $article;
+                }
+            }
+            return response()->json(
+                [
+                    "status" => 1,
+                    "articles" => $articleArray
+                ],
+                200,
+                [],
+                JSON_UNESCAPED_UNICODE
+            );
+        }
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @param  String $categoryToken
+     * @return \Illuminate\Http\Response
+     */
+    public function getByCategory(String $categoryToken)
+    {
+        $validator = Validator::make(["identifiant de la catégorie" => $categoryToken], ["identifiant de la catégorie" => "required|exists:Articles,categorieToken"]);
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    "status" => 0,
+                    "errors" => $validator->errors()->toArray()
+                ],
+                406,
+                [],
+                JSON_UNESCAPED_UNICODE
+            );
+        } else {
+            $dataDB = Article::all();
+            $articleArray = [];
+            foreach ($dataDB as $article) {
+                if ($article["categorieToken"] == $categoryToken) {
+                    $articleArray[] = $article;
+                }
+            }
+            return response()->json(
+                [
+                    "status" => 1,
+                    "articles" => $articleArray
+                ],
+                200,
+                [],
+                JSON_UNESCAPED_UNICODE
+            );
+        }
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +94,28 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        return Article::all();
+        $dataDB = Article::all();
+        if ($dataDB == []) {
+            return response()->json(
+                [
+                    "status" => 0,
+                    "errors" => ["db" => "Aucun article."]
+                ],
+                404,
+                [],
+                JSON_UNESCAPED_UNICODE
+            );
+        } else {
+            return response()->json(
+                [
+                    "status" => 1,
+                    "articles" => $dataDB
+                ],
+                200,
+                [],
+                JSON_UNESCAPED_UNICODE
+            );
+        }
     }
 
     /**
@@ -31,10 +132,10 @@ class ArticleController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Article  $article
+     * @param  String  $token
      * @return \Illuminate\Http\Response
      */
-    public function show(Article $article)
+    public function show(String $token)
     {
         //
     }
@@ -43,10 +144,10 @@ class ArticleController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Article  $article
+     * @param  String  $token
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Article $article)
+    public function update(Request $request, String $token)
     {
         //
     }
@@ -54,10 +155,10 @@ class ArticleController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Article  $article
+     * @param  String  $token
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Article $article)
+    public function destroy(String $token)
     {
         //
     }

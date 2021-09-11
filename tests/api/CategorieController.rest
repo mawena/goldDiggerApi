@@ -1,0 +1,24 @@
+GET http://localhost:7500/api/category
+###YES
+
+GET http://localhost:7500/api/category/f9f5ad209cd0fa4c8a3a8d22182130559ae60da8
+###YES
+
+DELETE http://localhost:7500/api/category/d840a02461fcbf692ed0a83740379b5391923105
+###YES
+
+POST http://localhost:7500/api/category
+Content-Type: application/json
+
+{
+    "name" : "IA"
+}
+###YES
+
+PUT http://localhost:7500/api/category/f9f5ad209cd0fa4c8a3a8d22182130559ae60da8
+Content-Type: application/json
+
+{
+    "name" : "IA"
+}
+###

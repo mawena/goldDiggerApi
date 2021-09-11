@@ -15,5 +15,8 @@ class Article extends Model
      * @var array
      */
     protected $table = "Articles";
+    protected $primaryKey = "token";
+    protected $keyType = 'string';
     protected $fillable = ['title', 'pageLink', 'imageLink', 'contentBase', 'date', 'categorieToken', 'webSiteToken'];
+    public $timestamps = false;
 }
