@@ -54,11 +54,11 @@ Pour les articles on peut préciser le nombre d'argument(nbr) et la page(page) v
     "/api/website/{token}" : permet de suprimer un site web à l'aide de son token
 # Categories:
 ### **GET** 
-    "/api/categorie" : retourne toutes les categories
-    "/apit/categorie/{token}" : retourne les informations d'une categorie à l'aide de son token
+    "/api/category" : retourne toutes les categories
+    "/apit/category/{token}" : retourne les informations d'une categorie à l'aide de son token
 
 ### **POST**
-    "/api/categorie" : permet d'ajouter une categorie
+    "/api/category" : permet d'ajouter une categorie
         Content-Type: application/json
         
         {
@@ -66,7 +66,7 @@ Pour les articles on peut préciser le nombre d'argument(nbr) et la page(page) v
         }
 
 ### **PUT**
-    "/api/categorie/{token} : permet de mettre à jour une categorie à l'aide de son token
+    "/api/category/{token} : permet de mettre à jour une categorie à l'aide de son token
         Content-Type: application/json
 
         {
@@ -74,5 +74,5 @@ Pour les articles on peut préciser le nombre d'argument(nbr) et la page(page) v
         }
 
 ### **DELETE**
-    "/api/categorie/{token}" : permet de suprimer une categorie à l'aide de son token
+    "/api/category/{token}" : permet de suprimer une categorie à l'aide de son token
 
