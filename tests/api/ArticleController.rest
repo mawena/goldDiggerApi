@@ -1,22 +1,17 @@
-GET http://localhost:7500/api/article
+GET http://localhost:7500/api/article?nbr=2&page=2
 ###YES
 
-GET http://localhost:7500/api/article/website/5a0cb0da43df22dafd240c7dc177771595726858
-###YES
-
-GET http://localhost:7500/api/article/category/eb40898470f9fc303bb1f5f27ef351084a6f272
-###YES
-
-GET http://localhost:7500/api/article/02cf4e7db732159f19123a90d22f2fda857fac77
+GET http://localhost:7500/api/article/ff8352f9ca9951eaa735884d39c3f6071890f264?nbrNewView=5
 ###YES
 
 DELETE http://localhost:7500/api/article/01cba42d50a9878a77cc4dc4fea919369223acc6
 ###YES
 
-PUT http://localhost:7500/api/article/02cf4e7db732159f19123a90d22f2fda857fac77
+PUT http://localhost:7500/api/article/noirnoirnoir
 Content-Type: application/json
 
 {
+    "token": "02cf4e7db732159f19123a90d22f2fda857fac77",
     "title": "Afghanistan : les Taliban annoncent \"une amnistie\" pour les employés d'État",
     "pageLink": "https://www.france24.com/fr/asie-pacifique/20210817-afghanistan-les-taliban-annoncent-une-amnistie-pour-les-employ%C3%A9s-d-%C3%A9tat",
     "imageLink": "https://google.com",
@@ -25,4 +20,13 @@ Content-Type: application/json
     "categorieToken": "8276cf21cd12cc93bfe3159ef286f0f775e1318b",
     "webSiteToken": "5a0cb0da43df22dafd240c7dc177771595726858"
 }
+###
+
+GET http://localhost:7500/api/article/website/5a0cb0da43df22dafd240c7dc177771595726858
+###YES
+
+GET http://localhost:7500/api/article/category/8276cf21cd12cc93bfe3159ef286f0f775e1318b?nbr=2&page=2
+###YES
+
+GET http://localhost:7500/api/article/search?str=a&nbr=10&page=1
 ###

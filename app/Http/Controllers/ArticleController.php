@@ -16,7 +16,7 @@ class ArticleController extends Controller
      * @param  String $websiteToken
      * @return \Illuminate\Http\Response
      */
-    public function getByWebSite(String $webSiteToken)
+    public function getByWebSite(Request $request, String $webSiteToken)
     {
         $validator = Validator::make(["identifiant du site web" => $webSiteToken], ["identifiant du site web" => "exists:Articles,webSiteToken"]);
         if ($validator->fails()) {
@@ -30,13 +30,11 @@ class ArticleController extends Controller
                 JSON_UNESCAPED_UNICODE
             );
         } else {
-            $dataDB = Article::all();
-            $articleArray = [];
-            foreach ($dataDB as $article) {
-                if ($article["webSiteToken"] == $webSiteToken) {
-                    $articleArray[] = $article;
-                }
-            }
+            $requestData = $request->all();
+            (isset($requestData["nbr"])) ? $requestData["nbr"] = (int)($requestData["nbr"]) : $requestData["nbr"] = 15;
+            (isset($requestData["page"])) ? $requestData["page"] = (int)($requestData["page"]) : $requestData["page"] = 1;
+
+            $articleArray = (Article::where("webSiteToken", "=", $webSiteToken)->forPage($requestData["page"], $requestData["nbr"])->get())->toArray();
             return response()->json(
                 [
                     "status" => 1,
@@ -55,7 +53,7 @@ class ArticleController extends Controller
      * @param  String $categoryToken
      * @return \Illuminate\Http\Response
      */
-    public function getByCategory(String $categoryToken)
+    public function getByCategory(Request $request, String $categoryToken)
     {
         $validator = Validator::make(["identifiant de la catégorie" => $categoryToken], ["identifiant de la catégorie" => "exists:Articles,categorieToken"]);
         if ($validator->fails()) {
@@ -69,13 +67,12 @@ class ArticleController extends Controller
                 JSON_UNESCAPED_UNICODE
             );
         } else {
-            $dataDB = Article::all();
-            $articleArray = [];
-            foreach ($dataDB as $article) {
-                if ($article["categorieToken"] == $categoryToken) {
-                    $articleArray[] = $article;
-                }
-            }
+            $requestData = $request->all();
+            (isset($requestData["nbr"])) ? $requestData["nbr"] = (int)($requestData["nbr"]) : $requestData["nbr"] = 15;
+            (isset($requestData["page"])) ? $requestData["page"] = (int)($requestData["page"]) : $requestData["page"] = 1;
+
+            $articleArray = (Article::where("categorieToken", "=", $categoryToken)->forPage($requestData["page"], $requestData["nbr"])->get())->toArray();
+
             return response()->json(
                 [
                     "status" => 1,
@@ -93,9 +90,13 @@ class ArticleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $dataDB = Article::all();
+        $requestData = $request->all();
+        (isset($requestData["nbr"])) ? $requestData["nbr"] = (int)($requestData["nbr"]) : $requestData["nbr"] = 15;
+        (isset($requestData["page"])) ? $requestData["page"] = (int)($requestData["page"]) : $requestData["page"] = 1;
+
+        $dataDB = (Article::forPage($requestData["page"], $requestData["nbr"])->get())->toArray();
         if ($dataDB == []) {
             return response()->json(
                 [
@@ -107,6 +108,7 @@ class ArticleController extends Controller
                 JSON_UNESCAPED_UNICODE
             );
         } else {
+
             return response()->json(
                 [
                     "status" => 1,
@@ -136,8 +138,10 @@ class ArticleController extends Controller
      * @param  String  $token
      * @return \Illuminate\Http\Response
      */
-    public function show(String $token)
+    public function show(Request $request, String $token)
     {
+        $requestData = $request->all();
+        (isset($requestData["nbrNewView"])) ? $requestData["nbrNewView"] = (int) $requestData["nbrNewView"] : $requestData["nbrNewView"] = 0;
         $validator = Validator::make(["identifiant de l'article" => $token], ["identifiant de l'article" => "exists:Articles,token"]);
         if ($validator->fails()) {
             return response()->json(
@@ -150,10 +154,13 @@ class ArticleController extends Controller
                 JSON_UNESCAPED_UNICODE
             );
         } else {
+            $article = Article::find($token);
+            $article["nbrView"] = $article["nbrView"] + $requestData["nbrNewView"];
+            $article->update();
             return response()->json(
                 [
                     "status" => 1,
-                    "article" => Article::find($token)
+                    "article" => $article
                 ],
                 200,
                 [],
@@ -174,7 +181,7 @@ class ArticleController extends Controller
         $article = Article::find($token);
         if ($article) {
             $requestData = $request->all();
-            $validator = Validator::make($requestData, ["token" => "unique:Articles|min:10", "title" => "min:2|unique:Articles", "pageLink" => "url|unique:Articles", "imageLink" => "url", "contentBase" => "min:10", "date" => "date", "categorieToken" => "exists:Categories,token", "webSiteToken" => "exists:WebSites,token"]);
+            $validator = Validator::make($requestData, ["token" => "unique:Articles|min:10", "title" => "min:2|unique:Articles", "pageLink" => "url|unique:Articles", "imageLink" => "url", "contentBase" => "min:10", "date" => "date", "categorieToken" => "exists:Categories,token", "webSiteToken" => "exists:WebSites,token", "nbrView" => "numeric"]);
             if ($validator->fails()) {
                 return response()->json(
                     [
@@ -250,6 +257,56 @@ class ArticleController extends Controller
                     "status" => 1,
                 ],
                 200,
+                [],
+                JSON_UNESCAPED_UNICODE
+            );
+        }
+    }
+
+    /**
+     * Search a article
+     *
+     * @param  String  $token
+     * @return \Illuminate\Http\Response
+     */
+    public function search(Request $request)
+    {
+        $requestData = $request->all();
+        if (isset($requestData["str"])) {
+
+
+            (isset($requestData["nbr"])) ? $requestData["nbr"] = (int)($requestData["nbr"]) : $requestData["nbr"] = 15;
+            (isset($requestData["page"])) ? $requestData["page"] = (int)($requestData["page"]) : $requestData["page"] = 1;
+
+            $articleArray = (Article::where("title", "like", "%" . $requestData["str"] . "%")->orwhere("contentBase", "like", "%" . $requestData["str"] . "%")->forPage($requestData["page"], $requestData["nbr"])->get())->toArray();
+            if ($articleArray == []) {
+                return response()->json(
+                    [
+                        "status" => 0,
+                        "errors" => ["db" => "Aucun résultat."]
+                    ],
+                    404,
+                    [],
+                    JSON_UNESCAPED_UNICODE
+                );
+            } else {
+                return response()->json(
+                    [
+                        "status" => 1,
+                        "articles" => $articleArray
+                    ],
+                    200,
+                    [],
+                    JSON_UNESCAPED_UNICODE
+                );
+            }
+        } else {
+            return response()->json(
+                [
+                    "status" => 0,
+                    "errors" => ["str" => "L'attribut 'str' est manquant."]
+                ],
+                406,
                 [],
                 JSON_UNESCAPED_UNICODE
             );

@@ -1,0 +1,6 @@
+-pagination des articles (?num=15 par défaut) mais il peut préciser le nombre à travers la variable num via get  Yes
+-endpoints de recherche d'article(si on tape un mot on puisse avoir tout les articles qui contiennent ce mot dans leur titre ou leur contenues) Yes
+-gérer les vues d'un article, pour chaque appel d'un show d'article, il faudra attendre un nombre pour incrémenter le nombre de vue d'un article
+
+
+Mettre à jour goldDigger avec le compteur de vue    y

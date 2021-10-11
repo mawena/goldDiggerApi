@@ -23,12 +23,14 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::get('/article', [ArticleController::class, 'index']);
+Route::get('/article/search', [ArticleController::class, 'search']);
 Route::get('/article/website/{webSiteToken}', [ArticleController::class, 'getByWebSite']);
 Route::get('/article/category/{categoyToken}', [ArticleController::class, 'getByCategory']);
 Route::get('/article/{token}', [ArticleController::class, 'show']);
 // Route::post('/article', [ArticleController::class, 'store']);
 Route::match(['put', 'patch'], 'article/{token}', [ArticleController::class, 'update']);
 Route::delete('/article/{token}', [Articlecontroller::class, 'destroy']);
+
 
 Route::get('/category', [CategoryController::class, 'index']);
 Route::get('/category/{token}', [CategoryController::class, 'show']);

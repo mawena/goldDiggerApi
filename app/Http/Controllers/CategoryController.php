@@ -132,11 +132,10 @@ class CategoryController extends Controller
      */
     public function update(Request $request, String $token)
     {
-
         $categoryData = Category::find($token);
         $requestData = $request->all();
         if ($categoryData) {
-            $validator = Validator::make($requestData["name"], ["name" => "required|unique:Categories|min:2"]);
+            $validator = Validator::make(["name" => $requestData["name"]], ["name" => "required|unique:Categories|min:2"]);
             if ($validator->fails()) {
                 return response()->json(
                     [
